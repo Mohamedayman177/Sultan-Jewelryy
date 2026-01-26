@@ -3929,8 +3929,8 @@ top: -100px;
 }
 
 .video__player-wrapper img {
-  min-height: 400px;
-  object-fit: cover;
+min-height: 280px;
+object-fit: contain;
 }
 .video__player-wrapper .popup-youtube {
   top: 50%;
@@ -5605,7 +5605,7 @@ top: -100px;
 }
 @media only screen and (max-width: 767.98px) {
   .statistic-box2 .info {
-    font-size: 16px;
+    font-size: 15px;
   }
 }
 .statistic-box2:hover .counter-item, .statistic-box2.active .counter-item {
