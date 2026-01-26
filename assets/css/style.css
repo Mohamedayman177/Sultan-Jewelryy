@@ -1584,7 +1584,7 @@ body::-webkit-scrollbar-thumb {
 .vs-menu-wrapper .vs-menu-area {
   width: 100%;
   max-width: 310px;
-  background-color: #fff;
+  background-color: #000000;
   border-right: 3px solid #e2c55d;
   height: 100%;
   position: relative;
@@ -1636,7 +1636,7 @@ body::-webkit-scrollbar-thumb {
   line-height: 1;
   font-size: 17px;
   text-transform: capitalize;
-  color: #171a1b;
+  color: #ffffff;
   font-weight: 600;
 }
 
