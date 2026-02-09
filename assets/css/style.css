@@ -969,8 +969,7 @@ body::-webkit-scrollbar-thumb {
 */
 .section-sub-title {
   color: #caa34d ;
-"Rubik", sans-seriffont-family: "Rubik", sans-serif;
-  font-size: 18px;
+  font-size: 25px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.54px;
@@ -1901,7 +1900,7 @@ top: -100px;
 }
 @media only screen and (max-width: 1199.98px) {
   .hero-one__main-thumb {
-    display: ;
+   width: 170%;
   }
 }
 .hero-one__slider-area {
@@ -4011,8 +4010,8 @@ object-fit: contain;
     inset 0 1px 1px rgba(255, 255, 255, 0.6);
   overflow: hidden;
   padding: 67px 47px;
-  column-gap: 20px;
-  row-gap: 10px;
+  column-gap: 30px;
+  row-gap: 20px;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   position: relative;
 }
@@ -4031,7 +4030,7 @@ object-fit: contain;
 }
 @media only screen and (max-width: 575.98px) {
   .brands__slider {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     padding: 30px;
   }
 }
@@ -4067,7 +4066,6 @@ object-fit: contain;
   border-radius: 10px;
   border-top-left-radius: 40px;
   border: 2px solid rgba(255, 255, 255, 0.15);
-  background: ;
   padding-inline: 14px;
   padding-block: 14px 40px;
 }
@@ -5615,7 +5613,7 @@ object-fit: contain;
 }
 @media only screen and (max-width: 767.98px) {
   .statistic-box2 .info {
-    font-size: 7px;
+    font-size: 15px;
   }
 }
 .statistic-box2:hover .counter-item, .statistic-box2.active .counter-item {
@@ -8903,4 +8901,20 @@ html[lang="en"] .btn-wrapper .en-text {
 /* الزر يفضل تحت */
 .pricing-footer {
   margin-top: auto;
+}
+.aboutSwiper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.aboutSwiper img {
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  transition: transform 6s ease;
+}
+
+/* Zoom خفيف أثناء العرض */
+.swiper-slide-active img {
+  transform: scale(1.08);
 }
