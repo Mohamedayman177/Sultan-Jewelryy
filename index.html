@@ -274,6 +274,7 @@ body.rtl [data-lang="ar"] {
                       alt="hero-shape"
                       class="fade-anim"
                       data-delay="1.5"
+                      style="width: 55%;"
                     />
                    
                   </div>
@@ -300,9 +301,7 @@ body.rtl [data-lang="ar"] {
   data-offset="100"
   id="نبذه عننا"
 >
-  <div class="shape-1">
-    <img src="./assets/images/about/about-shape-1-1.png" alt="shape" />
-  </div>
+ 
 
   <div class="container">
     <div class="row">
@@ -488,9 +487,6 @@ body.rtl [data-lang="ar"] {
   class="about section section-padding-bottom position-relative overflow-hidden fade-anim"
   data-offset="100"
 >
-  <div class="shape-1">
-    <img src="./assets/images/about/about-shape-1-1.png" alt="shape" />
-  </div>
 
   <div class="container">
     <div class="row">
@@ -504,7 +500,7 @@ body.rtl [data-lang="ar"] {
               <div class="col-lg-6">
                 <div class="about__tab-content">
                   <span class="section-sub-title text-uppercase">
-                    <span data-lang="ar">جهات الاعتماد المعتمدة</span>
+                    <span data-lang="ar">شهادات الاعتماد</span>
                     <span data-lang="en">Accredited Certification Bodies</span>
                   </span>
 
@@ -522,11 +518,31 @@ GIA, HRD Antwerp, IGI, DNA Diamonds
               </div>
 
               <!-- الصورة -->
-              <div class="col-lg-6">
-                <div class="about__tab-thumb d-flex justify-content-center">
-                  <img src="assets/images/hero/about2.jpeg" alt="about-thumb" />
-                </div>
-              </div>
+             <div class="col-lg-6">
+  <div class="swiper aboutSwiper">
+    <div class="swiper-wrapper">
+
+      <div class="swiper-slide">
+        <img src="assets/images/hero/about2.jpeg" alt="">
+      </div>
+
+      <div class="swiper-slide">
+        <img src="assets/images/hero/1 (1).png" alt="">
+      </div>
+
+      <div class="swiper-slide">
+        <img src="assets/images/hero/2 (1).png" alt="">
+      </div>
+<div class="swiper-slide">
+        <img src="assets/images/hero/4.png" alt="">
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/images/hero/5 (1).png" alt="">
+      </div>
+    </div>
+  </div>
+</div>
+
 
             </div>
           </div>
@@ -853,7 +869,7 @@ new TradingView.widget({
                   <img src="./assets/images/hero/Logo1.png" alt="logo" />
                 </a>
                 <p>
-                          مُقيّم أحجار كريمة بخبرة 20 عامًا في التحليل والتقييم المعتمد.
+                          مُقيّم الاحجار كريمة بخبرة 20 عامًا في التحليل والتقييم المعتمد.
                 </p>
                 <div class="contact-info">
                   <div class="contact-icon">
@@ -1244,6 +1260,20 @@ navLinks.forEach(link => {
 </script>
 
 
+<script>
+new Swiper(".aboutSwiper", {
+  loop: true,
+  effect: "fade",
+  speed: 2000,        // نعومة الحركة
+  autoplay: {
+    delay: 4000,      // وقت كل صورة
+    disableOnInteraction: false,
+  },
+  fadeEffect: {
+    crossFade: true,
+  },
+});
+</script>
 
 
   </body>
