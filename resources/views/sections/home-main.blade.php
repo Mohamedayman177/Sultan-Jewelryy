@@ -435,7 +435,7 @@ GIA, HRD Antwerp, IGI, DNA Diamonds
           </div>
 
           <div class="pricing-footer text-center">
-            <a href="https://wa.me/966538600000" target="_blank" rel="noopener noreferrer" class="btn-primary">
+            <a href="#" role="button" class="btn-primary customer-modal-open" data-service="instant_consultation">
              <div class="btn-wrapper">
   <span class="btn-text ar-text">ابدأ رحلتك التقييمية</span>
   <span class="btn-text en-text">Start Your Evaluation Journey</span>
@@ -481,7 +481,7 @@ GIA, HRD Antwerp, IGI, DNA Diamonds
           </div>
 
           <div class="pricing-footer text-center">
-            <a href="https://wa.me/966538600000" target="_blank" rel="noopener noreferrer" class="btn-primary">
+            <a href="#" role="button" class="btn-primary customer-modal-open" data-service="photo_evaluation">
              <div class="btn-wrapper">
   <span class="btn-text ar-text">ابدأ رحلتك التقييمية</span>
   <span class="btn-text en-text">Start Your Evaluation Journey</span>
@@ -527,7 +527,7 @@ GIA, HRD Antwerp, IGI, DNA Diamonds
           </div>
 
           <div class="pricing-footer text-center">
-            <a href="https://wa.me/966538600000" target="_blank" rel="noopener noreferrer" class="btn-primary">
+            <a href="#" role="button" class="btn-primary customer-modal-open" data-service="comprehensive_consultation">
 <div class="btn-wrapper">
   <span class="btn-text ar-text">ابدأ رحلتك التقييمية</span>
   <span class="btn-text en-text">Start Your Evaluation Journey</span>

@@ -78,8 +78,8 @@ document.addEventListener('DOMContentLoaded', function () {
     html.classList.add(lang === "ar" ? "lang-ar" : "lang-en");
 
     document.querySelectorAll("[data-lang]").forEach(el => {
-      el.style.display =
-        el.getAttribute("data-lang") === lang ? "inline" : "none";
+      const mode = el.getAttribute("data-lang-display") || "inline";
+      el.style.display = el.getAttribute("data-lang") === lang ? mode : "none";
     });
 
     localStorage.setItem("siteLang", lang);
@@ -94,6 +94,114 @@ document.addEventListener('DOMContentLoaded', function () {
       applyLanguage(currentLang === "ar" ? "en" : "ar");
     });
   });
+
+  (function initCustomerModal() {
+    const modal = document.getElementById("customerModal");
+    const form = document.getElementById("customerForm");
+    if (!modal || !form) return;
+
+    const storeUrl = modal.dataset.storeUrl;
+    const serviceInput = document.getElementById("customer_service_key");
+    const localeInput = document.getElementById("customer_locale");
+    const errBox = document.getElementById("customerErrors");
+    const submitBtn = document.getElementById("customerSubmit");
+
+    function csrfToken() {
+      const m = document.querySelector('meta[name="csrf-token"]');
+      return m ? m.getAttribute("content") : "";
+    }
+
+    function openModal(serviceKey) {
+      form.reset();
+      serviceInput.value = serviceKey || "";
+      localeInput.value = currentLang;
+      errBox.textContent = "";
+      errBox.classList.remove("is-visible");
+      form.querySelectorAll(".customer-modal__input").forEach(i => i.classList.remove("is-invalid"));
+      applyLanguage(currentLang);
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    document.querySelectorAll(".customer-modal-open").forEach(el => {
+      el.addEventListener("click", function (e) {
+        e.preventDefault();
+        openModal(this.dataset.service);
+      });
+    });
+
+    modal.querySelectorAll("[data-customer-close]").forEach(el => {
+      el.addEventListener("click", closeModal);
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
+    });
+
+    function renderErrors(errors) {
+      const lines = [];
+      const keys = ["phone", "name", "national_id", "email", "service_key", "locale"];
+      keys.forEach(k => {
+        if (!errors[k]) return;
+        errors[k].forEach(msg => lines.push(msg));
+      });
+      Object.keys(errors).forEach(k => {
+        if (keys.includes(k)) return;
+        errors[k].forEach(msg => lines.push(msg));
+      });
+      errBox.textContent = lines.join("\n") || (currentLang === "ar" ? "تعذر إرسال الطلب." : "Could not submit the form.");
+      errBox.classList.add("is-visible");
+    }
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      errBox.classList.remove("is-visible");
+      errBox.textContent = "";
+      localeInput.value = currentLang;
+
+      const fd = new FormData(form);
+      fd.set("_token", csrfToken());
+
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch(storeUrl, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "X-CSRF-TOKEN": csrfToken(),
+            "X-Requested-With": "XMLHttpRequest",
+          },
+          body: fd,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 422 && data.errors) {
+          renderErrors(data.errors);
+          return;
+        }
+        if (!res.ok || !data.whatsapp_url) {
+          renderErrors({
+            phone: [currentLang === "ar" ? "حدث خطأ، حاول لاحقًا." : "Something went wrong. Try again."],
+          });
+          return;
+        }
+        closeModal();
+        window.open(data.whatsapp_url, "_blank", "noopener,noreferrer");
+      } catch {
+        renderErrors({
+          phone: [currentLang === "ar" ? "تعذر الاتصال بالخادم." : "Could not reach the server."],
+        });
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  })();
 </script>
 <script>
 new Swiper(".aboutSwiper", {

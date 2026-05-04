@@ -13,6 +13,8 @@
         @yield('content')
     </main>
 
+    @include('partials.customer-modal')
+
     @include('partials.site-footer')
     @include('partials.site-scroll-top')
 
