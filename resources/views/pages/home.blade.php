@@ -1,0 +1,112 @@
+@extends('layouts.site')
+
+@section('content')
+    @include('sections.home-main')
+@endsection
+
+@push('scripts')
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script type="text/javascript">
+new TradingView.widget({
+  "width": "100%",
+  "height": "100%",
+  "symbol": "XAUUSD",
+  "interval": "D",
+  "timezone": "Etc/UTC",
+  "theme": "Light",
+  "style": "1",
+  "locale": "en",
+  "container_id": "goldChart",
+  "autosize": true,
+  "toolbar_bg": "#fff",
+  "hide_side_toolbar": false,
+  "withdateranges": true,
+  "allow_symbol_change": true
+});
+</script>
+<script>
+function toArabicNumbers(num) {
+  return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+
+setTimeout(() => {
+  document.querySelectorAll('.arabic-number').forEach(el => {
+    el.innerHTML = toArabicNumbers(el.innerText);
+  });
+}, 1000);
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const openVideo = document.getElementById('openVideo');
+  const modal = document.getElementById('videoModal');
+  const iframe = document.getElementById('youtubeFrame');
+  const closeBtn = modal ? modal.querySelector('.close') : null;
+
+  if (!openVideo || !modal || !iframe || !closeBtn) {
+    return;
+  }
+
+  openVideo.addEventListener('click', function (e) {
+    e.preventDefault();
+    const url = new URL(this.href);
+    const videoId = url.searchParams.get('v');
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    modal.style.display = 'block';
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => {
+    if (e.target === modal) closeModal();
+  });
+
+  function closeModal() {
+    modal.style.display = 'none';
+    iframe.src = '';
+  }
+});
+</script>
+<script>
+  let currentLang = localStorage.getItem("siteLang") || "ar";
+
+  function applyLanguage(lang) {
+    const html = document.documentElement;
+
+    html.lang = lang;
+    html.dir = lang === "ar" ? "rtl" : "ltr";
+
+    html.classList.remove("lang-ar", "lang-en");
+    html.classList.add(lang === "ar" ? "lang-ar" : "lang-en");
+
+    document.querySelectorAll("[data-lang]").forEach(el => {
+      el.style.display =
+        el.getAttribute("data-lang") === lang ? "inline" : "none";
+    });
+
+    localStorage.setItem("siteLang", lang);
+    currentLang = lang;
+  }
+
+  applyLanguage(currentLang);
+
+  document.querySelectorAll(".lang-btn").forEach(btn => {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      applyLanguage(currentLang === "ar" ? "en" : "ar");
+    });
+  });
+</script>
+<script>
+new Swiper(".aboutSwiper", {
+  loop: true,
+  effect: "fade",
+  speed: 2000,
+  autoplay: {
+    delay: 4000,
+    disableOnInteraction: false,
+  },
+  fadeEffect: {
+    crossFade: true,
+  },
+});
+</script>
+@endpush
