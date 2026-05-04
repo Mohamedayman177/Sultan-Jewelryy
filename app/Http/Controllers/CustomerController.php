@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,14 +19,14 @@ class CustomerController extends Controller
             ? [
                 'phone.required' => 'رقم الجوال مطلوب.',
                 'email.email' => 'صيغة البريد الإلكتروني غير صحيحة.',
-                'service_key.required' => 'يجب تحديد نوع الخدمة.',
-                'service_key.in' => 'نوع الخدمة غير صالح.',
+                'service_id.required' => 'يجب تحديد نوع الخدمة.',
+                'service_id.exists' => 'الخدمة غير متاحة.',
             ]
             : [
                 'phone.required' => 'Mobile number is required.',
                 'email.email' => 'Please enter a valid email address.',
-                'service_key.required' => 'Please choose a service.',
-                'service_key.in' => 'Invalid service type.',
+                'service_id.required' => 'Please choose a service.',
+                'service_id.exists' => 'This service is not available.',
             ];
 
         $validator = Validator::make($request->all(), [
@@ -33,7 +34,11 @@ class CustomerController extends Controller
             'national_id' => ['nullable', 'string', 'max:64'],
             'phone' => ['required', 'string', 'max:32'],
             'email' => ['nullable', 'email', 'max:255'],
-            'service_key' => ['required', 'string', Rule::in(array_keys(Customer::serviceLabels()))],
+            'service_id' => [
+                'required',
+                'integer',
+                Rule::exists('services', 'id')->where(fn ($q) => $q->where('is_active', true)->where('requires_registration', true)),
+            ],
             'locale' => ['nullable', 'string', Rule::in(['ar', 'en'])],
         ], $messages);
 
@@ -48,7 +53,7 @@ class CustomerController extends Controller
             'national_id' => filled($data['national_id'] ?? null) ? trim((string) $data['national_id']) : null,
             'phone' => trim((string) $data['phone']),
             'email' => filled($data['email'] ?? null) ? trim((string) $data['email']) : null,
-            'service_key' => $data['service_key'],
+            'service_id' => (int) $data['service_id'],
             'locale' => $data['locale'] ?? 'ar',
         ]);
 
@@ -63,10 +68,10 @@ class CustomerController extends Controller
     private function whatsappUrl(array $data): string
     {
         $number = preg_replace('/\D/', '', (string) config('services.whatsapp.number'));
-        $labels = Customer::serviceLabels();
-        $key = $data['service_key'];
-        $ar = $labels[$key]['ar'];
-        $en = $labels[$key]['en'];
+        $service = Service::query()->findOrFail((int) $data['service_id']);
+
+        $ar = $service->title_ar;
+        $en = $service->title_en;
 
         $name = $data['name'] ?? '';
         $nid = $data['national_id'] ?? '';

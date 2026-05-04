@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!modal || !form) return;
 
     const storeUrl = modal.dataset.storeUrl;
-    const serviceInput = document.getElementById("customer_service_key");
+    const serviceInput = document.getElementById("customer_service_id");
     const localeInput = document.getElementById("customer_locale");
     const errBox = document.getElementById("customerErrors");
     const submitBtn = document.getElementById("customerSubmit");
@@ -111,9 +111,9 @@ document.addEventListener('DOMContentLoaded', function () {
       return m ? m.getAttribute("content") : "";
     }
 
-    function openModal(serviceKey) {
+    function openModal(serviceId) {
       form.reset();
-      serviceInput.value = serviceKey || "";
+      serviceInput.value = serviceId || "";
       localeInput.value = currentLang;
       errBox.textContent = "";
       errBox.classList.remove("is-visible");
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll(".customer-modal-open").forEach(el => {
       el.addEventListener("click", function (e) {
         e.preventDefault();
-        openModal(this.dataset.service);
+        openModal(this.dataset.serviceId);
       });
     });
 
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderErrors(errors) {
       const lines = [];
-      const keys = ["phone", "name", "national_id", "email", "service_key", "locale"];
+      const keys = ["phone", "name", "national_id", "email", "service_id", "locale"];
       keys.forEach(k => {
         if (!errors[k]) return;
         errors[k].forEach(msg => lines.push(msg));

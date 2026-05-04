@@ -95,6 +95,55 @@
             opacity: 0.45;
             pointer-events: none;
         }
+        .admin-flash {
+            margin: 0 1.5rem;
+            max-width: 1200px;
+            margin-inline: auto;
+            padding: 0 1.5rem;
+            margin-top: 1rem;
+        }
+        .admin-flash__inner {
+            padding: 0.65rem 1rem;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-weight: 600;
+        }
+        .admin-flash--ok .admin-flash__inner {
+            background: rgba(46, 125, 50, 0.12);
+            border: 1px solid rgba(46, 125, 50, 0.35);
+            color: #1b5e20;
+        }
+        .admin-flash--err .admin-flash__inner {
+            background: rgba(196, 68, 68, 0.09);
+            border: 1px solid rgba(196, 68, 68, 0.35);
+            color: #7a1f1f;
+        }
+        .admin-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+        .btn-admin {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-admin--primary {
+            background: linear-gradient(135deg, #d4b04a 0%, #b8922e 100%);
+            color: #fff;
+        }
+        .btn-admin--muted {
+            background: #fff;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-admin--danger {
+            background: rgba(196, 68, 68, 0.12);
+            border: 1px solid rgba(196, 68, 68, 0.45);
+            color: #7a1f1f;
+        }
     </style>
     @stack('styles')
 </head>
@@ -106,6 +155,7 @@
             <span class="admin-nav__brand">{{ config('app.name') }} — لوحة التحكم</span>
             <div class="admin-nav__actions">
                 <a href="{{ route('admin.customers.index') }}">العملاء المسجّلون</a>
+                <a href="{{ route('admin.services.index') }}">الخدمات</a>
                 <a href="{{ route('home') }}" target="_blank" rel="noopener noreferrer">الموقع</a>
                 <form action="{{ route('admin.logout') }}" method="post">
                     @csrf
@@ -113,6 +163,13 @@
                 </form>
             </div>
         </header>
+    @endif
+
+    @if (session('flash_ok'))
+        <div class="admin-flash admin-flash--ok"><div class="admin-flash__inner">{{ session('flash_ok') }}</div></div>
+    @endif
+    @if (session('flash_error'))
+        <div class="admin-flash admin-flash--err"><div class="admin-flash__inner">{{ session('flash_error') }}</div></div>
     @endif
 
     <main class="admin-main">

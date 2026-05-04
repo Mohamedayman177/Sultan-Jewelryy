@@ -6,7 +6,7 @@
 <div class="admin-card">
     <h1 class="admin-h1">العملاء المسجّلون</h1>
     <p class="muted" style="margin-top:0;margin-bottom:1.25rem;">
-        البيانات المرسلة من نموذج الخدمات المدفوعة قبل التوجيه إلى واتساب.
+        البيانات المرسلة من نموذج الخدمات التي تتطلّب التسجيل قبل التوجيه إلى واتساب.
     </p>
 
     @if ($customers->isEmpty())
@@ -35,12 +35,11 @@
                             <td dir="ltr" style="text-align:right;">{{ $customer->phone }}</td>
                             <td dir="ltr" style="text-align:right;">{{ $customer->email ?: '—' }}</td>
                             <td>
-                                @php($labels = $serviceLabels[$customer->service_key] ?? null)
-                                @if ($labels)
-                                    {{ $labels['ar'] }}
-                                    <span class="muted">/ {{ $labels['en'] }}</span>
+                                @if ($customer->service)
+                                    {{ $customer->service->title_ar }}
+                                    <span class="muted">/ {{ $customer->service->title_en }}</span>
                                 @else
-                                    {{ $customer->service_key }}
+                                    —
                                 @endif
                             </td>
                             <td>{{ strtoupper($customer->locale ?? '—') }}</td>

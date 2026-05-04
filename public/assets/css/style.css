@@ -8856,7 +8856,6 @@ html.lang-en a {
 }
 
 .btn-wrapper .btn-text {
-  display: none !important;
   opacity: 1 !important;
   visibility: visible !important;
   transform: none !important;
@@ -8865,6 +8864,17 @@ html.lang-en a {
   width: auto !important;
   color: inherit !important;
   white-space: nowrap;
+}
+
+/* زر التسعير: النص يعتمد على data-lang (لا نستخدم ar-text/en-text فقط) */
+html[lang="ar"] .btn-wrapper .btn-text[data-lang="ar"],
+html[lang="en"] .btn-wrapper .btn-text[data-lang="en"] {
+  display: inline-block !important;
+}
+
+html[lang="ar"] .btn-wrapper .btn-text[data-lang="en"],
+html[lang="en"] .btn-wrapper .btn-text[data-lang="ar"] {
+  display: none !important;
 }
 
 /* عربي */

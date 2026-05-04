@@ -10,11 +10,11 @@ class CustomerController extends Controller
 {
     public function index(): View
     {
-        $customers = Customer::query()->latest()->paginate(20);
+        $customers = Customer::query()
+            ->with('service')
+            ->latest()
+            ->paginate(20);
 
-        return view('admin.customers.index', [
-            'customers' => $customers,
-            'serviceLabels' => Customer::serviceLabels(),
-        ]);
+        return view('admin.customers.index', compact('customers'));
     }
 }

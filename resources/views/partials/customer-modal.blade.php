@@ -172,7 +172,7 @@ html[dir="rtl"] .customer-modal__dialog {
         <div id="customerErrors" class="customer-modal__errors" role="alert"></div>
 
         <form id="customerForm" novalidate>
-            <input type="hidden" name="service_key" id="customer_service_key" value="">
+            <input type="hidden" name="service_id" id="customer_service_id" value="">
             <input type="hidden" name="locale" id="customer_locale" value="ar">
 
             <div class="customer-modal__field">

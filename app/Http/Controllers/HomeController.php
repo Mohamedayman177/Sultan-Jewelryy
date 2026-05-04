@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -11,6 +12,11 @@ class HomeController extends Controller
      */
     public function __invoke(Request $request)
     {
-        return view('pages.home');
+        $waDigits = preg_replace('/\D/', '', (string) config('services.whatsapp.number'));
+
+        return view('pages.home', [
+            'services' => Service::query()->active()->ordered()->get(),
+            'whatsappBaseUrl' => $waDigits !== '' ? 'https://wa.me/'.$waDigits : '#',
+        ]);
     }
 }
