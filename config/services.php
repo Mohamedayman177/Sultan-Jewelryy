@@ -39,4 +39,16 @@ return [
         'number' => env('WHATSAPP_NUMBER', '966538600000'),
     ],
 
+    'myfatoorah' => [
+        'base_url' => env('MYFATOORAH_BASE_URL', 'https://apitest.myfatoorah.com'),
+        'api_key' => env('MYFATOORAH_API_KEY'),
+        'timeout' => (int) env('MYFATOORAH_TIMEOUT', 45),
+        'placeholder_email' => env('MYFATOORAH_PLACEHOLDER_EMAIL', 'payments@sultan-jewelry.local'),
+        /** HTTPS عام (مثل ngrok) — MyFatoorah ترفض localhost في CallBackUrl/ErrorUrl */
+        'public_app_url' => env('MYFATOORAH_PUBLIC_APP_URL'),
+        /** بعد إعادة التوجيه من البوابة قد تبقى الفاتورة Pending لثوانٍ — إعادة الاستعلام */
+        'status_poll_attempts' => max(1, (int) env('MYFATOORAH_STATUS_POLL_ATTEMPTS', 20)),
+        'status_poll_delay_ms' => max(0, (int) env('MYFATOORAH_STATUS_POLL_DELAY_MS', 500)),
+    ],
+
 ];

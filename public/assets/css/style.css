@@ -8895,6 +8895,26 @@ html[lang="en"] .btn-wrapper .en-text {
   flex-shrink: 0;
 }
 
+/*
+ * القالب الأصلي يفرض على كل span داخل .btn-wrapper حجماً 15×15px (لحركة الأيقونات)،
+ * ما يقطع نص .btn-text في كروت التسعير.
+ */
+.btn-primary .btn-wrapper span.btn-text,
+.btn-primary .btn-wrapper span.btn-text[data-lang] {
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  line-height: 1.35 !important;
+  text-transform: none !important;
+}
+.btn-primary .btn-wrapper span.btn-icons {
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  flex-shrink: 0;
+}
+
 /* === PRICING CARDS FIX === */
 
 .pricing-box {

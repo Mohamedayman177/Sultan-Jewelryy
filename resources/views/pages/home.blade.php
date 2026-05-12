@@ -185,10 +185,20 @@ document.addEventListener('DOMContentLoaded', function () {
           renderErrors(data.errors);
           return;
         }
+        if (data.payment_url) {
+          closeModal();
+          window.location.assign(data.payment_url);
+          return;
+        }
         if (!res.ok || !data.whatsapp_url) {
-          renderErrors({
-            phone: [currentLang === "ar" ? "حدث خطأ، حاول لاحقًا." : "Something went wrong. Try again."],
-          });
+          const fallback =
+            data.message ||
+            (currentLang === "ar" ? "حدث خطأ، حاول لاحقًا." : "Something went wrong. Try again.");
+          let detail = fallback;
+          if (data.gateway_message) {
+            detail = fallback + "\n" + data.gateway_message;
+          }
+          renderErrors({ phone: [detail] });
           return;
         }
         closeModal();
