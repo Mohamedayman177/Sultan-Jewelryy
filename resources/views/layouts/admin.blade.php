@@ -155,6 +155,7 @@
             <span class="admin-nav__brand">{{ config('app.name') }} — لوحة التحكم</span>
             <div class="admin-nav__actions">
                 <a href="{{ route('admin.customers.index') }}">العملاء المسجّلون</a>
+                <a href="{{ route('admin.payment-links.index') }}">روابط الدفع</a>
                 <a href="{{ route('admin.services.index') }}">الخدمات</a>
                 <a href="{{ route('home') }}" target="_blank" rel="noopener noreferrer">الموقع</a>
                 <form action="{{ route('admin.logout') }}" method="post">

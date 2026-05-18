@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\Admin\PaymentLinkController as AdminPaymentLinkController;
 use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
@@ -19,6 +20,8 @@ Route::get('/payment/callback', [PaymentCallbackController::class, 'callback'])
 Route::get('/payment/error', [PaymentCallbackController::class, 'error'])
     ->name('payment.error');
 
+Route::view('/payment/success', 'payment.success')->name('payment.success');
+
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('login', [AdminAuthController::class, 'create'])->name('login');
     Route::post('login', [AdminAuthController::class, 'store'])->name('login.store');
@@ -27,6 +30,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', fn () => redirect()->route('admin.customers.index'))->name('dashboard');
         Route::get('customers', [AdminCustomerController::class, 'index'])->name('customers.index');
         Route::resource('services', AdminServiceController::class)->except(['show']);
+        Route::resource('payment-links', AdminPaymentLinkController::class)->only(['index', 'create', 'store']);
         Route::post('logout', [AdminAuthController::class, 'destroy'])->name('logout');
     });
 });

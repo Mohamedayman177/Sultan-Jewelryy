@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\PaymentLink;
 use App\Services\MyFatoorahClient;
 use App\Support\MyFatoorahInvoiceStatus;
 use Illuminate\Http\RedirectResponse;
@@ -24,8 +25,12 @@ class PaymentCallbackController extends Controller
 
         $result = $this->evaluatePaymentStatus($client, (string) $paymentId);
 
-        if ($result['whatsapp_url'] !== null) {
-            return redirect()->away($result['whatsapp_url']);
+        if (isset($result['redirect_route'])) {
+            return redirect()->route($result['redirect_route']);
+        }
+
+        if ($result['redirect_url'] !== null) {
+            return redirect()->away($result['redirect_url']);
         }
 
         $query = array_filter([
@@ -55,8 +60,12 @@ class PaymentCallbackController extends Controller
 
         $result = $this->evaluatePaymentStatus($client, (string) $paymentId);
 
-        if ($result['whatsapp_url'] !== null) {
-            return redirect()->away($result['whatsapp_url']);
+        if (isset($result['redirect_route'])) {
+            return redirect()->route($result['redirect_route']);
+        }
+
+        if ($result['redirect_url'] !== null) {
+            return redirect()->away($result['redirect_url']);
         }
 
         return view('payment.error', [
@@ -76,7 +85,8 @@ class PaymentCallbackController extends Controller
 
     /**
      * @return array{
-     *     whatsapp_url: ?string,
+     *     redirect_url: ?string,
+     *     redirect_route: ?string,
      *     error_query: array{reason?: string, invoice_status?: string},
      *     error_view: array{reason?: string, invoice_status?: ?string, gateway_message?: ?string}
      * }
@@ -86,7 +96,8 @@ class PaymentCallbackController extends Controller
         $statusPayload = $this->fetchPaymentStatusWithRetries($client, $paymentId);
 
         $emptyError = [
-            'whatsapp_url' => null,
+            'redirect_url' => null,
+            'redirect_route' => null,
             'error_query' => ['reason' => 'status_failed'],
             'error_view' => [
                 'reason' => 'status_failed',
@@ -101,7 +112,24 @@ class PaymentCallbackController extends Controller
 
         $data = $statusPayload['Data'] ?? [];
         $invoiceStatusRaw = MyFatoorahInvoiceStatus::normalizedInvoiceStatus($data);
-        $customer = $this->resolveCustomerFromPaymentData($data);
+        $paymentLink = $this->resolvePaymentLinkFromPaymentData($data);
+        $customer = $paymentLink ? null : $this->resolveCustomerFromPaymentData($data);
+
+        if (MyFatoorahInvoiceStatus::indicatesPaid($data) && $paymentLink) {
+            if ($paymentLink->payment_status !== 'paid') {
+                $paymentLink->update([
+                    'payment_status' => 'paid',
+                    'paid_at' => now(),
+                ]);
+            }
+
+            return [
+                'redirect_url' => null,
+                'redirect_route' => 'payment.success',
+                'error_query' => [],
+                'error_view' => [],
+            ];
+        }
 
         if (MyFatoorahInvoiceStatus::indicatesPaid($data) && $customer) {
             if ($customer->payment_status !== 'paid') {
@@ -113,15 +141,17 @@ class PaymentCallbackController extends Controller
             $customer->loadMissing('service');
 
             return [
-                'whatsapp_url' => $customer->whatsappContactUrl(),
+                'redirect_url' => $customer->whatsappContactUrl(),
+                'redirect_route' => null,
                 'error_query' => [],
                 'error_view' => [],
             ];
         }
 
-        if (MyFatoorahInvoiceStatus::indicatesPaid($data) && ! $customer) {
+        if (MyFatoorahInvoiceStatus::indicatesPaid($data) && ! $customer && ! $paymentLink) {
             return [
-                'whatsapp_url' => null,
+                'redirect_url' => null,
+                'redirect_route' => null,
                 'error_query' => ['reason' => 'customer'],
                 'error_view' => [
                     'reason' => 'customer',
@@ -129,6 +159,10 @@ class PaymentCallbackController extends Controller
                     'gateway_message' => $statusPayload['Message'] ?? null,
                 ],
             ];
+        }
+
+        if ($paymentLink !== null && MyFatoorahInvoiceStatus::indicatesTerminalFailure($invoiceStatusRaw)) {
+            $paymentLink->update(['payment_status' => 'failed']);
         }
 
         if ($customer !== null && MyFatoorahInvoiceStatus::indicatesTerminalFailure($invoiceStatusRaw)) {
@@ -146,7 +180,8 @@ class PaymentCallbackController extends Controller
         }
 
         return [
-            'whatsapp_url' => null,
+            'redirect_url' => null,
+            'redirect_route' => null,
             'error_query' => [
                 'reason' => $stillPending ? 'still_pending' : 'not_paid',
                 'invoice_status' => $invoiceStatusRaw,
@@ -195,6 +230,30 @@ class PaymentCallbackController extends Controller
         }
 
         return $lastPayload;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function resolvePaymentLinkFromPaymentData(array $data): ?PaymentLink
+    {
+        $ref = isset($data['CustomerReference']) ? trim((string) $data['CustomerReference']) : null;
+        $linkId = PaymentLink::idFromMyfatoorahReference($ref);
+        if ($linkId !== null) {
+            $paymentLink = PaymentLink::query()->find($linkId);
+            if ($paymentLink) {
+                return $paymentLink;
+            }
+        }
+
+        $invoiceId = $data['InvoiceId'] ?? null;
+        if (filled($invoiceId)) {
+            return PaymentLink::query()
+                ->where('myfatoorah_invoice_id', (int) $invoiceId)
+                ->first();
+        }
+
+        return null;
     }
 
     /**
