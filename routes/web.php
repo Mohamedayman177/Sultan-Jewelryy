@@ -29,6 +29,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/', fn () => redirect()->route('admin.customers.index'))->name('dashboard');
         Route::get('customers', [AdminCustomerController::class, 'index'])->name('customers.index');
+        Route::get('customers/{customer}', [AdminCustomerController::class, 'show'])->name('customers.show');
         Route::resource('services', AdminServiceController::class)->except(['show']);
         Route::resource('payment-links', AdminPaymentLinkController::class)->only(['index', 'create', 'store']);
         Route::post('logout', [AdminAuthController::class, 'destroy'])->name('logout');

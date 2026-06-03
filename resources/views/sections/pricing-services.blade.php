@@ -53,7 +53,10 @@
 
             <div class="pricing-footer text-center">
               @if ($service->requires_registration)
-                <a href="#" role="button" class="btn-primary customer-modal-open" data-service-id="{{ $service->id }}">
+                <a href="#" role="button" class="btn-primary customer-modal-open"
+                   data-service-id="{{ $service->id }}"
+                   data-service-title-ar="{{ $service->title_ar }}"
+                   data-service-title-en="{{ $service->title_en }}">
                   <div class="btn-wrapper">
                     <span data-lang="ar" data-lang-display="inline" class="btn-text">{{ $ctaAr }}</span>
                     <span data-lang="en" data-lang-display="inline" class="btn-text">{{ $ctaEn }}</span>

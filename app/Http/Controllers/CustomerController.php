@@ -2,69 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCustomerRequest;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Services\MyFatoorahClient;
+use App\Support\CustomerFormHelper;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class CustomerController extends Controller
 {
-    public function store(Request $request): JsonResponse
+    public function store(StoreCustomerRequest $request): JsonResponse
     {
-        $locale = $request->input('locale') === 'en' ? 'en' : 'ar';
-
-        $messages = $locale === 'ar'
-            ? [
-                'phone.required' => 'رقم الجوال مطلوب.',
-                'email.email' => 'صيغة البريد الإلكتروني غير صحيحة.',
-                'service_id.required' => 'يجب تحديد نوع الخدمة.',
-                'service_id.exists' => 'الخدمة غير متاحة.',
-            ]
-            : [
-                'phone.required' => 'Mobile number is required.',
-                'email.email' => 'Please enter a valid email address.',
-                'service_id.required' => 'Please choose a service.',
-                'service_id.exists' => 'This service is not available.',
-            ];
-
-        $validator = Validator::make($request->all(), [
-            'name' => ['nullable', 'string', 'max:255'],
-            'national_id' => ['nullable', 'string', 'max:64'],
-            'phone' => ['required', 'string', 'max:32'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'service_id' => [
-                'required',
-                'integer',
-                Rule::exists('services', 'id')->where(fn ($q) => $q->where('is_active', true)->where('requires_registration', true)),
-            ],
-            'locale' => ['nullable', 'string', Rule::in(['ar', 'en'])],
-        ], $messages);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $data = $validator->validated();
+        $data = $request->validated();
+        $locale = ($data['locale'] ?? 'ar') === 'en' ? 'en' : 'ar';
 
         $service = Service::query()
             ->where('is_active', true)
             ->where('requires_registration', true)
             ->findOrFail((int) $data['service_id']);
 
+        $itemCategory = (string) $data['item_category'];
+        $formDetails = $itemCategory === 'gemstone'
+            ? CustomerFormHelper::gemstoneDetailsFromRequest($data)
+            : CustomerFormHelper::jewelryDetailsFromRequest($data);
+
+        $customerPayload = [
+            'name' => trim((string) $data['name']),
+            'phone' => trim((string) $data['phone']),
+            'email' => filled($data['email'] ?? null) ? trim((string) $data['email']) : null,
+            'city' => trim((string) $data['city']),
+            'service_id' => (int) $data['service_id'],
+            'item_category' => $itemCategory,
+            'form_details' => $formDetails,
+            'locale' => $locale,
+            'terms_accepted_at' => now(),
+            'national_id' => null,
+        ];
+
         if ($service->is_free) {
-            $customer = Customer::create([
-                'name' => filled($data['name'] ?? null) ? trim((string) $data['name']) : null,
-                'national_id' => filled($data['national_id'] ?? null) ? trim((string) $data['national_id']) : null,
-                'phone' => trim((string) $data['phone']),
-                'email' => filled($data['email'] ?? null) ? trim((string) $data['email']) : null,
-                'service_id' => (int) $data['service_id'],
-                'locale' => $data['locale'] ?? 'ar',
+            $customer = Customer::create(array_merge($customerPayload, [
                 'payment_status' => null,
-            ]);
+            ]));
+            $this->storeUploadedFiles($request, $customer);
 
             return response()->json([
                 'whatsapp_url' => $customer->fresh(['service'])->whatsappContactUrl(),
@@ -92,26 +73,20 @@ class CustomerController extends Controller
             ], 422);
         }
 
-        $customer = Customer::create([
-            'name' => filled($data['name'] ?? null) ? trim((string) $data['name']) : null,
-            'national_id' => filled($data['national_id'] ?? null) ? trim((string) $data['national_id']) : null,
-            'phone' => trim((string) $data['phone']),
-            'email' => filled($data['email'] ?? null) ? trim((string) $data['email']) : null,
-            'service_id' => (int) $data['service_id'],
-            'locale' => $data['locale'] ?? 'ar',
+        $customer = Customer::create(array_merge($customerPayload, [
             'payment_status' => 'pending',
-        ]);
+        ]));
+        $this->storeUploadedFiles($request, $customer);
 
         $client = MyFatoorahClient::fromConfig();
 
         $payload = [
             'NotificationOption' => 'Lnk',
             'InvoiceValue' => $invoiceValue,
-            'CustomerName' => filled($data['name'] ?? null) ? trim((string) $data['name']) : 'Customer',
-            'CustomerEmail' => filled($data['email'] ?? null)
-                ? trim((string) $data['email'])
-                : (string) config('services.myfatoorah.placeholder_email'),
-            'CustomerMobile' => $this->normalizePhoneForMyFatoorah((string) $data['phone']),
+            'CustomerName' => $customer->name,
+            'CustomerEmail' => $customer->email
+                ?? (string) config('services.myfatoorah.placeholder_email'),
+            'CustomerMobile' => $this->normalizePhoneForMyFatoorah($customer->phone),
             'CustomerReference' => (string) $customer->id,
             'CallBackUrl' => $this->paymentAbsoluteUrl('payment.callback'),
             'ErrorUrl' => $this->paymentAbsoluteUrl('payment.error'),
@@ -127,7 +102,7 @@ class CustomerController extends Controller
                 'customer_id' => $customer->id,
                 'detail' => $gatewayDetail,
             ]);
-
+            $this->deleteCustomerFiles($customer);
             $customer->delete();
 
             return response()->json([
@@ -142,6 +117,7 @@ class CustomerController extends Controller
         $invoiceUrl = $result['Data']['InvoiceURL'] ?? null;
 
         if (! filled($invoiceUrl)) {
+            $this->deleteCustomerFiles($customer);
             $customer->delete();
 
             return response()->json([
@@ -160,9 +136,61 @@ class CustomerController extends Controller
         ]);
     }
 
-    /**
-     * روابط الرجوع يجب أن تكون HTTPS عامة؛ MyFatoorah ترفض غالباً localhost.
-     */
+    private function storeUploadedFiles(StoreCustomerRequest $request, Customer $customer): void
+    {
+        $stored = [];
+        $base = 'customer-submissions/'.$customer->id;
+
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $index => $file) {
+                $path = $file->store($base.'/photos', 'public');
+                $stored[] = [
+                    'type' => 'photo',
+                    'path' => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                    'label' => 'صورة '.($index + 1),
+                ];
+            }
+        }
+
+        if ($request->hasFile('invoice')) {
+            $file = $request->file('invoice');
+            $path = $file->store($base.'/invoice', 'public');
+            $stored[] = [
+                'type' => 'invoice',
+                'path' => $path,
+                'original_name' => $file->getClientOriginalName(),
+                'label' => 'فاتورة',
+            ];
+        }
+
+        if ($request->hasFile('certificates')) {
+            foreach ($request->file('certificates') as $index => $file) {
+                $path = $file->store($base.'/certificates', 'public');
+                $stored[] = [
+                    'type' => 'certificate',
+                    'path' => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                    'label' => 'شهادة '.($index + 1),
+                ];
+            }
+        }
+
+        if ($stored !== []) {
+            $customer->update(['attachments' => $stored]);
+        }
+    }
+
+    private function deleteCustomerFiles(Customer $customer): void
+    {
+        foreach ($customer->attachments ?? [] as $file) {
+            if (! empty($file['path'])) {
+                Storage::disk('public')->delete($file['path']);
+            }
+        }
+        Storage::disk('public')->deleteDirectory('customer-submissions/'.$customer->id);
+    }
+
     private function paymentAbsoluteUrl(string $routeName): string
     {
         $override = config('services.myfatoorah.public_app_url');
@@ -192,9 +220,6 @@ class CustomerController extends Controller
         return $merged !== '' ? $merged : null;
     }
 
-    /**
-     * MyFatoorah (بيئة الاختبار على الأقل) تقبل كحد أقصى 11 خانة لـ CustomerMobile — الرقم الوطني بدون كود الدولة.
-     */
     private function normalizePhoneForMyFatoorah(string $phone): string
     {
         $digits = preg_replace('/\D/', '', $phone) ?? '';

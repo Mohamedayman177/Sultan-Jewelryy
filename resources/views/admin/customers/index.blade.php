@@ -18,13 +18,14 @@
                     <tr>
                         <th>#</th>
                         <th>الاسم</th>
-                        <th>الهوية</th>
+                        <th>نوع القطعة</th>
                         <th>الجوال</th>
-                        <th>البريد</th>
+                        <th>المدينة</th>
                         <th>الخدمة</th>
                         <th>الدفع</th>
                         <th>اللغة</th>
                         <th>تاريخ التسجيل</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,9 +33,9 @@
                         <tr>
                             <td>{{ $customer->id }}</td>
                             <td>{{ $customer->name ?: '—' }}</td>
-                            <td dir="ltr" style="text-align:right;">{{ $customer->national_id ?: '—' }}</td>
+                            <td>{{ $customer->item_category ? $customer->itemCategoryLabel() : '—' }}</td>
                             <td dir="ltr" style="text-align:right;">{{ $customer->phone }}</td>
-                            <td dir="ltr" style="text-align:right;">{{ $customer->email ?: '—' }}</td>
+                            <td>{{ $customer->city ?: '—' }}</td>
                             <td>
                                 @if ($customer->service)
                                     {{ $customer->service->title_ar }}
@@ -56,6 +57,7 @@
                             </td>
                             <td>{{ strtoupper($customer->locale ?? '—') }}</td>
                             <td class="muted">{{ $customer->created_at?->timezone(config('app.timezone'))->format('Y-m-d H:i') }}</td>
+                            <td><a href="{{ route('admin.customers.show', $customer) }}" class="btn-admin btn-admin--muted">تفاصيل</a></td>
                         </tr>
                     @endforeach
                 </tbody>
