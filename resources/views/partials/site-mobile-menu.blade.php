@@ -18,7 +18,7 @@
         </li>
         <li>
         <a href="{{ $home }}#نبذه عننا">
-               <span data-lang="ar"> نبذه عننا </span>
+               <span data-lang="ar"> عن المقيم </span>
                <span data-lang="en">About Me</span>
         </li>
         <li class="menu-item-has-children mega-menu-wrap">
