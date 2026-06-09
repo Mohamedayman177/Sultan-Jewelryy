@@ -1,0 +1,13 @@
+<script src="<?php echo e(asset('assets/js/vendor/jquery-3.7.1.min.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/vendor/odometer.min.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/vendor/viewport.jquery.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/vendor/bootstrap.bundle.min.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/vendor/jquery.meanmenu.min.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/vendor/swiper-bundle.min.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/vendor/jquery.magnific-popup.min.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/vendor/gsap.min.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/vendor/ScrollTrigger.min.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/vendor/ScrollToPlugin.min.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/vendor/SplitText.min.js')); ?>"></script>
+<script src="<?php echo e(asset('assets/js/main.js')); ?>"></script>
+<?php /**PATH C:\xampp\htdocs\Sultan-Jewelryy\resources\views/partials/site-scripts.blade.php ENDPATH**/ ?>
