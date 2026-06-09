@@ -38,7 +38,7 @@
 
             <li>
               <a href="{{ $home }}#نبذه عننا">
-               <span data-lang="ar"> نبذه عننا </span>
+               <span data-lang="ar"> عن المقيم </span>
                <span data-lang="en">About Me</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
