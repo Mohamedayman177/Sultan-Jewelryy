@@ -73,7 +73,7 @@
                   </span>
                   <h3 class="section-title">
                     <span data-lang="ar">
-                    خبير و مُقيّم الاحجار الكريمة بخبرة 20 عامًا في التحليل والتقييم المعتمد.
+                    خبير و مُقيّم الاحجار الكريمة بخبرة تزيد عن 20 عامًا في التحليل والتقييم المعتمد.
                     </span>
                     <span data-lang="en">
                       Gemstone evaluator with 20 years <br> of certified analysis and appraisal experience
