@@ -32,6 +32,7 @@ return new class extends Migration
             });
 
         Schema::table('customers', function (Blueprint $table) {
+            $table->dropIndex(['service_key']);
             $table->dropColumn('service_key');
         });
     }
