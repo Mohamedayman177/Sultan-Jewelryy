@@ -26,14 +26,6 @@
                   <span data-lang="ar">{{ $service->title_ar }}</span>
                   <span data-lang="en">{{ $service->title_en }}</span>
                 </h4>
-                @if ($service->is_free)
-                  <h4 class="plan-price">
-                    <span data-lang="ar">مجانًا</span>
-                    <span data-lang="en">Free</span>
-                  </h4>
-                @else
-                  <h4 class="plan-price">{{ number_format((float) $service->price, 0) }} SAR</h4>
-                @endif
               </div>
             </div>
 

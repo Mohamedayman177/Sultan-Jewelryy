@@ -197,17 +197,13 @@
         renderErrors(data.errors);
         return;
       }
-      if (data.payment_url) {
-        closeModal();
-        window.location.assign(data.payment_url);
-        return;
-      }
       if (!res.ok || !data.whatsapp_url) {
-        let detail =
-          data.message ||
-          (currentLang === "ar" ? "حدث خطأ، حاول لاحقًا." : "Something went wrong.");
-        if (data.gateway_message) detail += "\n" + data.gateway_message;
-        renderErrors({ phone: [detail] });
+        renderErrors({
+          phone: [
+            data.message ||
+              (currentLang === "ar" ? "حدث خطأ، حاول لاحقًا." : "Something went wrong."),
+          ],
+        });
         return;
       }
       closeModal();
